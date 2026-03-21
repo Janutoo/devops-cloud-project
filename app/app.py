@@ -27,12 +27,17 @@ def add_task():
     tasks.append(task)
     task_id += 1
 
-    return jsonify(task)
+    return jsonify(task), 201
 
 @app.route("/tasks/<int:id>", methods=["DELETE"])
 def delete_task(id):
     global tasks
     tasks = [t for t in tasks if t["id"] != id]
     return jsonify({"message": "deleted"})
+
+@app.route("/health")
+def health():
+    return {"status": "ok"}
+
 
 app.run(host="0.0.0.0", port=5000)
