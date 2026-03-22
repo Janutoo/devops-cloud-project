@@ -1,19 +1,19 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 
 app = Flask(__name__)
 
 tasks = []
 task_id = 1
 
-@app.route("/tasks", methods=["GET"])
+@app.route("/")
+def home():
+    return render_template("index.html")
+
+@app.route("/api/tasks", methods=["GET"])
 def get_tasks():
     return jsonify(tasks)
 
-@app.route("/")
-def home():
-    return "Task API is running"
-
-@app.route("/tasks", methods=["POST"])
+@app.route("/api/tasks", methods=["POST"])
 def add_task():
     global task_id
     data = request.json
@@ -29,7 +29,16 @@ def add_task():
 
     return jsonify(task), 201
 
-@app.route("/tasks/<int:id>", methods=["DELETE"])
+@app.route("/api/tasks/<int:id>", methods=["PUT"])
+def update_task(id):
+    data = request.json
+    for task in tasks:
+        if task["id"] == id:
+            task["done"] = data.get("done", task["done"])
+            return jsonify(task)
+    return jsonify({"error": "Task not found"}), 404
+
+@app.route("/api/tasks/<int:id>", methods=["DELETE"])
 def delete_task(id):
     global tasks
     tasks = [t for t in tasks if t["id"] != id]
