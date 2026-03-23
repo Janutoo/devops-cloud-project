@@ -100,10 +100,3 @@ README.md
 * How frontend communicates with backend (HTTP/JSON)
 * Basics of DevOps workflow
 
----
-
-## 📎 GitHub Repository
-
-👉 https://github.com/Janutoo/devops-cloud-project
-
----
