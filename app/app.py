@@ -14,11 +14,7 @@ class User(UserMixin):
         self.id = id
         self.username = username
 
-users = [
-    User(1, 'admin'),
-    User(2, 'user1'),
-    User(3, 'user2')
-]
+users = []
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -38,12 +34,24 @@ def home():
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
-        username = request.form.get("username")
+        username = request.form.get("username").strip()
+        if not username:
+            flash("Username cannot be empty")
+            return render_template("login.html")
+
+        # Search for existing user
         for user in users:
             if user.username == username:
                 login_user(user)
                 return redirect(url_for("home"))
-        flash("Invalid username")
+
+        # Create new user on the fly if not found
+        next_id = max([u.id for u in users], default=0) + 1
+        new_user = User(next_id, username)
+        users.append(new_user)
+        login_user(new_user)
+        return redirect(url_for("home"))
+
     return render_template("login.html")
 
 @app.route("/logout")
