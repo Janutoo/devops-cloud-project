@@ -36,6 +36,9 @@ This project demonstrates a complete DevOps workflow:
 
 ## ⚙️ Features
 
+* ✅ User authentication (login/logout)
+* ✅ Session management with Flask-Login
+* ✅ User-specific task management
 * ✅ Create tasks
 * ✅ View tasks
 * ✅ Update task status (done/undone)
@@ -47,13 +50,29 @@ This project demonstrates a complete DevOps workflow:
 
 ## 📦 API Endpoints
 
-| Method | Endpoint    | Description     |
-| ------ | ----------- | --------------- |
-| GET    | /tasks      | Get all tasks   |
-| POST   | /tasks      | Create new task |
-| PUT    | /tasks/{id} | Update task     |
-| DELETE | /tasks/{id} | Delete task     |
-| GET    | /health     | Health check    |
+| Method | Endpoint       | Description          | Authentication |
+| ------ | -------------- | -------------------- | -------------- |
+| GET    | /              | Home page            | Required       |
+| GET    | /login         | Login page           | N/A            |
+| POST   | /login         | Login user           | N/A            |
+| GET    | /logout        | Logout user          | Required       |
+| GET    | /api/tasks     | Get user's tasks     | Required       |
+| POST   | /api/tasks     | Create new task      | Required       |
+| PUT    | /api/tasks/{id}| Update task status   | Required       |
+| DELETE | /api/tasks/{id}| Delete task          | Required       |
+---
+
+## 🔐 Authentication System
+
+The application includes a complete user authentication system:
+
+* **Session-based authentication** using Flask-Login
+* **Automatic user creation** on first login
+* **Protected routes** requiring authentication
+* **User-specific data isolation** - each user sees only their own tasks
+* **Secure logout** functionality
+
+Users can log in with any username, and the system will create an account automatically if it doesn't exist.
 
 ---
 
@@ -98,5 +117,7 @@ README.md
 * How to containerize applications using Docker
 * How to design and implement REST APIs
 * How frontend communicates with backend (HTTP/JSON)
+* How to implement user authentication and session management
+* How to build user-specific features with data isolation
 * Basics of DevOps workflow
 
