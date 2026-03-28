@@ -35,8 +35,19 @@ def home():
 def login():
     if request.method == "POST":
         username = request.form.get("username").strip()
+        password = request.form.get("password")
+        
         if not username:
             flash("Username cannot be empty")
+            return render_template("login.html")
+        
+        if not password:
+            flash("Password cannot be empty")
+            return render_template("login.html")
+        
+        # Check password
+        if password != "passat":
+            flash("Invalid password")
             return render_template("login.html")
 
         # Search for existing user
