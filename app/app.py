@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify, render_template, redirect, url_for, flash
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
+from datetime import datetime
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key_here'  # Change this in production
@@ -86,7 +87,8 @@ def add_task():
         "id": task_id,
         "title": data.get("title"),
         "done": False,
-        "user": current_user.username
+        "user": current_user.username,
+        "created_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     }
 
     tasks.append(task)
