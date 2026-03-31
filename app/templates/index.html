@@ -45,6 +45,26 @@
             margin-top: 10px;
             opacity: 0.9;
         }
+        .priority-badge {
+            font-size: 12px;
+            font-weight: bold;
+            padding: 4px 8px;
+            border-radius: 4px;
+            display: inline-block;
+            margin-left: 10px;
+        }
+        .priority-wysoki {
+            background-color: #dc3545;
+            color: white;
+        }
+        .priority-sredni {
+            background-color: #ffc107;
+            color: black;
+        }
+        .priority-niski {
+            background-color: #28a745;
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -71,8 +91,13 @@
                     <div class="card-body">
                         <h5 class="card-title">Add New Task</h5>
                         <form id="addTaskForm">
-                            <div class="input-group">
+                            <div class="input-group mb-3">
                                 <input type="text" class="form-control" id="taskTitle" placeholder="Enter task title..." required>
+                                <select class="form-select" id="taskPriority" style="max-width: 150px;">
+                                    <option value="Niski">Niski</option>
+                                    <option value="Średni" selected>Średni</option>
+                                    <option value="Wysoki">Wysoki</option>
+                                </select>
                                 <button class="btn btn-primary" type="submit">Add Task</button>
                             </div>
                         </form>
@@ -129,9 +154,11 @@
         document.getElementById('addTaskForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const title = document.getElementById('taskTitle').value.trim();
+            const priority = document.getElementById('taskPriority').value;
             if (title) {
-                addTask(title);
+                addTask(title, priority);
                 document.getElementById('taskTitle').value = '';
+                document.getElementById('taskPriority').value = 'Średni';
             }
         });
 
@@ -145,14 +172,14 @@
             }
         }
 
-        async function addTask(title) {
+        async function addTask(title, priority) {
             try {
                 const response = await fetch('/api/tasks', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ title: title })
+                    body: JSON.stringify({ title: title, priority: priority })
                 });
                 if (response.ok) {
                     loadTasks(); // Reload tasks
@@ -202,12 +229,17 @@
                 return;
             }
 
-            taskList.innerHTML = tasks.map(task => `
+            taskList.innerHTML = tasks.map(task => {
+                const priorityClass = task.priority === 'Wysoki' ? 'priority-wysoki' : 
+                                     task.priority === 'Niski' ? 'priority-niski' : 'priority-sredni';
+                
+                return `
                 <div class="task-item d-flex justify-content-between align-items-center">
-                    <div class="form-check">
+                    <div class="form-check flex-grow-1">
                         <input class="form-check-input" type="checkbox" id="task${task.id}" ${task.done ? 'checked' : ''} onchange="toggleTask(${task.id})">
                         <label class="form-check-label ${task.done ? 'task-done' : ''}" for="task${task.id}">
                             ${task.title}
+                            <span class="priority-badge ${priorityClass}">${task.priority}</span>
                         </label>
                         <small class="text-muted d-block">Utworzony: ${task.created_at} | Użytkownik: ${task.user}</small>
                     </div>
@@ -218,7 +250,7 @@
                         </svg>
                     </button>
                 </div>
-            `).join('');
+            `}).join('');
         }
     </script>
 </body>

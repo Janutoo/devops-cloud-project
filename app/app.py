@@ -82,10 +82,16 @@ def get_tasks():
 def add_task():
     global task_id
     data = request.json
+    
+    # Walidacja priorytetu
+    priority = data.get("priority", "Średni")
+    if priority not in ["Niski", "Średni", "Wysoki"]:
+        priority = "Średni"
 
     task = {
         "id": task_id,
         "title": data.get("title"),
+        "priority": priority,
         "done": False,
         "user": current_user.username,
         "created_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
@@ -103,6 +109,13 @@ def update_task(id):
     for task in tasks:
         if task["id"] == id:
             task["done"] = data.get("done", task["done"])
+            
+            # Walidacja priorytetu
+            if "priority" in data:
+                priority = data.get("priority")
+                if priority in ["Niski", "Średni", "Wysoki"]:
+                    task["priority"] = priority
+            
             return jsonify(task)
     return jsonify({"error": "Task not found"}), 404
 
