@@ -8,6 +8,8 @@ A full-stack task management application built with Flask, containerized using D
 
 👉 http://YOUR_PUBLIC_IP:5000
 
+(Replace `YOUR_PUBLIC_IP` with your AWS EC2 instance's public IP address)
+
 ---
 
 ## 🧠 Project Overview
@@ -101,15 +103,16 @@ The application is deployed on an AWS EC2 instance:
 ```
 app/
  ├── templates/
- │    └── index.html
- ├── app.py
- ├── requirements.txt
+ │    ├── index.html          (Main task manager UI)
+ │    └── login.html          (Login page)
+ ├── app.py                   (Flask application)
+ └── requirements.txt         (Python dependencies)
 
-dockerfile
-README.md
+
+dockerfile                    (Docker image definition)
+README.md                     (Project documentation)
 ```
 
----
 
 ## 🧠 What I Learned
 
@@ -120,4 +123,3 @@ README.md
 * How to implement user authentication and session management
 * How to build user-specific features with data isolation
 * Basics of DevOps workflow
-
