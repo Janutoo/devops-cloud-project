@@ -82,6 +82,7 @@
 
                 <h1 class="text-center mb-4">Task Manager</h1>
                 <div class="text-end mb-3">
+                    <a href="{{ url_for('members') }}" class="btn btn-sm btn-outline-primary me-2">Members</a>
                     <span class="me-2">Logged in as: <strong>{{ current_user.username }}</strong></span>
                     <a href="{{ url_for('logout') }}" class="btn btn-sm btn-outline-secondary">Logout</a>
                 </div>

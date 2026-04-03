@@ -72,6 +72,11 @@ def logout():
     logout_user()
     return redirect(url_for("login"))
 
+@app.route("/members")
+@login_required
+def members():
+    return render_template("members.html", users=users)
+
 @app.route("/api/tasks", methods=["GET"])
 @login_required
 def get_tasks():
