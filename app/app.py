@@ -99,7 +99,8 @@ def add_task():
         "priority": priority,
         "done": False,
         "user": current_user.username,
-        "created_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        "created_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "completed_at": None
     }
 
     tasks.append(task)
@@ -114,6 +115,12 @@ def update_task(id):
     for task in tasks:
         if task["id"] == id:
             task["done"] = data.get("done", task["done"])
+            
+            # Dodaj datę zakończenia taska
+            if task["done"]:
+                task["completed_at"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            else:
+                task["completed_at"] = None
             
             # Walidacja priorytetu
             if "priority" in data:
@@ -136,4 +143,4 @@ def health():
     return {"status": "ok"}
 
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+    app.run(host="0.0.0.0", port=8080)

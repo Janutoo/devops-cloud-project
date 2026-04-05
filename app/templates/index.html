@@ -234,6 +234,9 @@
                 const priorityClass = task.priority === 'Wysoki' ? 'priority-wysoki' : 
                                      task.priority === 'Niski' ? 'priority-niski' : 'priority-sredni';
                 
+                const completedInfo = task.done && task.completed_at ? 
+                    ` | Zakończony: ${task.completed_at}` : '';
+                
                 return `
                 <div class="task-item d-flex justify-content-between align-items-center">
                     <div class="form-check flex-grow-1">
@@ -242,7 +245,7 @@
                             ${task.title}
                             <span class="priority-badge ${priorityClass}">${task.priority}</span>
                         </label>
-                        <small class="text-muted d-block">Utworzony: ${task.created_at} | Użytkownik: ${task.user}</small>
+                        <small class="text-muted d-block">Utworzony: ${task.created_at} | Użytkownik: ${task.user}${completedInfo}</small>
                     </div>
                     <button class="btn btn-sm btn-outline-danger" onclick="deleteTask(${task.id})">
                         <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
