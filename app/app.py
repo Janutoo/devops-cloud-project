@@ -93,6 +93,15 @@ def add_task():
     if priority not in ["Niski", "Średni", "Wysoki"]:
         priority = "Średni"
 
+    due_date = None
+    raw_due_date = data.get("due_date")
+    if raw_due_date:
+        try:
+            datetime.strptime(raw_due_date, "%Y-%m-%d")
+            due_date = raw_due_date
+        except ValueError:
+            due_date = None
+
     task = {
         "id": task_id,
         "title": data.get("title"),
@@ -100,6 +109,7 @@ def add_task():
         "done": False,
         "user": current_user.username,
         "created_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "due_date": due_date,
         "completed_at": None
     }
 
@@ -127,6 +137,17 @@ def update_task(id):
                 priority = data.get("priority")
                 if priority in ["Niski", "Średni", "Wysoki"]:
                     task["priority"] = priority
+
+            if "due_date" in data:
+                due_date = data.get("due_date")
+                if due_date:
+                    try:
+                        datetime.strptime(due_date, "%Y-%m-%d")
+                        task["due_date"] = due_date
+                    except ValueError:
+                        pass
+                else:
+                    task["due_date"] = None
             
             return jsonify(task)
     return jsonify({"error": "Task not found"}), 404

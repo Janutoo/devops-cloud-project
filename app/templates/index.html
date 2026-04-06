@@ -92,15 +92,22 @@
                     <div class="card-body">
                         <h5 class="card-title">Add New Task</h5>
                         <form id="addTaskForm">
-                            <div class="input-group mb-3">
-                                <input type="text" class="form-control" id="taskTitle" placeholder="Enter task title..." required>
-                                <select class="form-select" id="taskPriority" style="max-width: 150px;">
-                                    <option value="Niski">Niski</option>
-                                    <option value="Średni" selected>Średni</option>
-                                    <option value="Wysoki">Wysoki</option>
-                                </select>
-                                <button class="btn btn-primary" type="submit">Add Task</button>
+                            <div class="row g-2 mb-3">
+                                <div class="col-12 col-md-6">
+                                    <input type="text" class="form-control" id="taskTitle" placeholder="Enter task title..." required>
+                                </div>
+                                <div class="col-6 col-md-3">
+                                    <select class="form-select" id="taskPriority">
+                                        <option value="Niski">Niski</option>
+                                        <option value="Średni" selected>Średni</option>
+                                        <option value="Wysoki">Wysoki</option>
+                                    </select>
+                                </div>
+                                <div class="col-6 col-md-3">
+                                    <input type="date" class="form-control" id="taskDueDate" placeholder="Deadline">
+                                </div>
                             </div>
+                            <button class="btn btn-primary" type="submit">Add Task</button>
                         </form>
                     </div>
                 </div>
@@ -156,10 +163,12 @@
             e.preventDefault();
             const title = document.getElementById('taskTitle').value.trim();
             const priority = document.getElementById('taskPriority').value;
+            const dueDate = document.getElementById('taskDueDate').value;
             if (title) {
-                addTask(title, priority);
+                addTask(title, priority, dueDate);
                 document.getElementById('taskTitle').value = '';
                 document.getElementById('taskPriority').value = 'Średni';
+                document.getElementById('taskDueDate').value = '';
             }
         });
 
@@ -173,14 +182,14 @@
             }
         }
 
-        async function addTask(title, priority) {
+        async function addTask(title, priority, dueDate) {
             try {
                 const response = await fetch('/api/tasks', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({ title: title, priority: priority })
+                    body: JSON.stringify({ title: title, priority: priority, due_date: dueDate })
                 });
                 if (response.ok) {
                     loadTasks(); // Reload tasks
@@ -236,6 +245,7 @@
                 
                 const completedInfo = task.done && task.completed_at ? 
                     ` | Zakończony: ${task.completed_at}` : '';
+                const dueInfo = task.due_date ? ` | Termin: ${task.due_date}` : '';
                 
                 return `
                 <div class="task-item d-flex justify-content-between align-items-center">
@@ -245,7 +255,7 @@
                             ${task.title}
                             <span class="priority-badge ${priorityClass}">${task.priority}</span>
                         </label>
-                        <small class="text-muted d-block">Utworzony: ${task.created_at} | Użytkownik: ${task.user}${completedInfo}</small>
+                        <small class="text-muted d-block">Utworzony: ${task.created_at}${dueInfo} | Użytkownik: ${task.user}${completedInfo}</small>
                     </div>
                     <button class="btn btn-sm btn-outline-danger" onclick="deleteTask(${task.id})">
                         <svg width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
