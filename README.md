@@ -28,6 +28,8 @@ This project demonstrates a complete DevOps workflow:
 
 * Python (Flask)
 * Docker
+* Kubernetes (planned)
+* Terraform (planned)
 * AWS EC2
 * Linux
 * Git
@@ -101,16 +103,23 @@ The application is deployed on an AWS EC2 instance:
 ## 📂 Project Structure
 
 ```
-app/
- ├── templates/
- │    ├── index.html          (Main task manager UI)
- │    └── login.html          (Login page)
- ├── app.py                   (Flask application)
- └── requirements.txt         (Python dependencies)
-
-
-dockerfile                    (Docker image definition)
-README.md                     (Project documentation)
+.
+├── app/
+│   ├── templates/
+│   │   ├── index.html          (Main task manager UI)
+│   │   ├── login.html          (Login page)
+│   │   └── members.html        (Members page)
+│   ├── app.py                   (Flask application)
+│   └── requirements.txt         (Python dependencies)
+├── docker/
+│   └── (Docker-related files - planned)
+├── k8s/
+│   └── (Kubernetes manifests - planned)
+├── terraform/
+│   └── (Infrastructure as Code - planned)
+├── dockerfile                    (Docker image definition)
+├── .gitignore                    (Git ignore rules)
+└── README.md                     (Project documentation)
 ```
 
 
@@ -123,3 +132,13 @@ README.md                     (Project documentation)
 * How to implement user authentication and session management
 * How to build user-specific features with data isolation
 * Basics of DevOps workflow
+
+---
+
+## 🚀 Future Enhancements
+
+* **Kubernetes Deployment**: Container orchestration with K8s manifests
+* **Infrastructure as Code**: Automated provisioning with Terraform
+* **CI/CD Pipeline**: Automated testing and deployment
+* **Database Integration**: Persistent data storage
+* **Monitoring**: Application performance and health monitoring
