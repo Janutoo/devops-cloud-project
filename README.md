@@ -6,7 +6,7 @@ A full-stack task management application built with Flask, containerized using D
 
 ## 🌐 Live Demo
 
-👉 http://YOUR_PUBLIC_IP:5000
+👉 http://YOUR_PUBLIC_IP:8080
 
 (Replace `YOUR_PUBLIC_IP` with your AWS EC2 instance's public IP address)
 
@@ -95,7 +95,7 @@ The application is deployed on an AWS EC2 instance:
 
 * Ubuntu server
 * Docker installed
-* Security group configured (ports 22, 5000)
+* Security group configured (ports 22, 8080)
 * Public access enabled
 
 ---

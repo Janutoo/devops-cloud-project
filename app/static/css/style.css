@@ -1,0 +1,139 @@
+/* Global theme */
+:root {
+    color-scheme: dark;
+    color: #eef2ff;
+    background: #0f172a;
+    font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+body {
+    background: radial-gradient(circle at top left, rgba(59, 130, 246, 0.16), transparent 28%),
+                radial-gradient(circle at bottom right, rgba(168, 85, 247, 0.18), transparent 30%),
+                #050816;
+    min-height: 100vh;
+}
+
+.app-shell {
+    background: rgba(8, 15, 41, 0.92);
+}
+
+.navbar-brand {
+    letter-spacing: 0.08em;
+}
+
+.card,
+.task-item,
+.member-item,
+.login-card {
+    background: rgba(255, 255, 255, 0.96);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 24px 70px rgba(15, 23, 42, 0.35);
+    color: #0f172a;
+    border-radius: 1.15rem;
+}
+
+.card-title,
+.hero-title,
+.member-item strong,
+.task-label {
+    color: #0f172a;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, #4f46e5, #06b6d4);
+    border: none;
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+    background: linear-gradient(135deg, #4338ca, #0ea5e9);
+}
+
+.btn-outline-primary {
+    color: #0f172a;
+    border-color: rgba(15, 23, 42, 0.14);
+    background: rgba(255, 255, 255, 0.92);
+}
+
+.btn-outline-secondary {
+    color: #0f172a;
+    border-color: rgba(15, 23, 42, 0.14);
+    background: rgba(255, 255, 255, 0.92);
+}
+
+.form-control,
+.form-select,
+.input-group-text {
+    border-radius: 0.85rem;
+    border: 1px solid rgba(15, 23, 42, 0.14);
+    background: #fff;
+}
+
+.task-item {
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.task-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 26px 75px rgba(15, 23, 42, 0.28);
+}
+
+.task-done {
+    text-decoration: line-through;
+    opacity: 0.65;
+}
+
+.priority-badge {
+    font-size: 0.78rem;
+    font-weight: 700;
+    padding: 0.28rem 0.6rem;
+    border-radius: 999px;
+}
+
+.priority-wysoki {
+    background: #ef4444;
+    color: #fff;
+}
+
+.priority-sredni {
+    background: #f59e0b;
+    color: #0f172a;
+}
+
+.priority-niski {
+    background: #22c55e;
+    color: #0f172a;
+}
+
+.hero-panel {
+    background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(248,250,252,0.95));
+    border-radius: 1.4rem;
+    padding: 2rem;
+    box-shadow: 0 24px 60px rgba(15, 23, 42, 0.22);
+}
+
+.hero-title {
+    font-size: clamp(2rem, 3vw, 3.25rem);
+    line-height: 1.05;
+}
+
+.hero-subtitle {
+    color: #475569;
+}
+
+.login-card {
+    max-width: 420px;
+    margin: 0 auto;
+    padding: 2rem;
+}
+
+.footer {
+    background: rgba(15, 23, 42, 0.98);
+}
+
+@media (max-width: 767px) {
+    .navbar-nav .nav-link {
+        padding-left: 0;
+        padding-right: 0;
+    }
+}
