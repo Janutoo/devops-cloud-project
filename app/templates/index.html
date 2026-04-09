@@ -3,6 +3,14 @@
 {% block title %}Dashboard - TaskFlow{% endblock %}
 
 {% block content %}
+<div class="clock-widget mb-5">
+    <div>
+        <strong>Bieżący czas i data</strong>
+    </div>
+    <div class="clock-time" id="clockDisplay">00:00:00</div>
+    <div class="clock-date" id="dateDisplay">--:--:--</div>
+</div>
+
 <div class="hero-panel mb-5">
     <div class="row align-items-center">
         <div class="col-lg-7">
@@ -66,25 +74,6 @@
 
 {% block scripts %}
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        updateClock();
-        setInterval(updateClock, 1000);
-        loadTasks();
-
-        document.getElementById('addTaskForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            const title = document.getElementById('taskTitle').value.trim();
-            const priority = document.getElementById('taskPriority').value;
-            const dueDate = document.getElementById('taskDueDate').value;
-            if (title) {
-                addTask(title, priority, dueDate);
-                document.getElementById('taskTitle').value = '';
-                document.getElementById('taskPriority').value = 'Średni';
-                document.getElementById('taskDueDate').value = '';
-            }
-        });
-    });
-
     function updateClock() {
         const now = new Date();
         const hours = String(now.getHours()).padStart(2, '0');
@@ -98,10 +87,31 @@
         const year = now.getFullYear();
         const timeString = `${hours}:${minutes}:${seconds}`;
         const dateString = `${dayName}, ${day} ${month} ${year}`;
-
-        document.getElementById('clockDisplay')?.textContent = timeString;
-        document.getElementById('dateDisplay')?.textContent = dateString;
+        
+        document.getElementById('clockDisplay').textContent = timeString;
+        document.getElementById('dateDisplay').textContent = dateString;
     }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        updateClock();
+        setInterval(updateClock, 1000);
+        loadTasks();
+
+        const form = document.getElementById('addTaskForm');
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const title = document.getElementById('taskTitle').value.trim();
+                const priority = document.getElementById('taskPriority').value;
+                const dueDate = document.getElementById('taskDueDate').value;
+                if (!title) return;
+                addTask(title, priority, dueDate);
+                document.getElementById('taskTitle').value = '';
+                document.getElementById('taskPriority').value = 'Średni';
+                document.getElementById('taskDueDate').value = '';
+            });
+        }
+    });
 
     async function loadTasks() {
         try {

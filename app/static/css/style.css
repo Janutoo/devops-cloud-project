@@ -83,6 +83,29 @@ body {
     opacity: 0.65;
 }
 
+.clock-widget {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 1rem;
+    padding: 2rem;
+    box-shadow: 0 8px 32px rgba(102, 126, 234, 0.25);
+    text-align: center;
+}
+
+.clock-time {
+    font-size: 3.5rem;
+    font-weight: bold;
+    font-family: 'Courier New', monospace;
+    margin: 1rem 0;
+    letter-spacing: 0.15em;
+}
+
+.clock-date {
+    font-size: 1.15rem;
+    margin-top: 1rem;
+    opacity: 0.95;
+}
+
 .priority-badge {
     font-size: 0.78rem;
     font-weight: 700;
