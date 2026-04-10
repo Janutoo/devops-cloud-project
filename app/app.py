@@ -110,7 +110,8 @@ def add_task():
         "user": current_user.username,
         "created_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "due_date": due_date,
-        "completed_at": None
+        "completed_at": None,
+        "completed_by": None
     }
 
     tasks.append(task)
@@ -126,11 +127,13 @@ def update_task(id):
         if task["id"] == id:
             task["done"] = data.get("done", task["done"])
             
-            # Dodaj datę zakończenia taska
+            # Dodaj datę zakończenia taska i autora zakończenia
             if task["done"]:
                 task["completed_at"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                task["completed_by"] = current_user.username
             else:
                 task["completed_at"] = None
+                task["completed_by"] = None
             
             # Walidacja priorytetu
             if "priority" in data:

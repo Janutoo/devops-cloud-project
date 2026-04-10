@@ -175,7 +175,7 @@
 
         taskList.innerHTML = tasks.map(task => {
             const priorityClass = task.priority === 'Wysoki' ? 'priority-wysoki' : task.priority === 'Niski' ? 'priority-niski' : 'priority-sredni';
-            const completedInfo = task.done && task.completed_at ? ` | Zakończony: ${task.completed_at}` : '';
+            const completedInfo = task.done && task.completed_at ? ` | Zakończony: ${task.completed_at}${task.completed_by ? ` | Ukończył: ${task.completed_by}` : ''}` : '';
             const dueInfo = task.due_date ? ` | Termin: ${task.due_date}` : '';
 
             return `
