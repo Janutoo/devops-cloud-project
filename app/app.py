@@ -75,7 +75,11 @@ def logout():
 @app.route("/members")
 @login_required
 def members():
-    return render_template("members.html", users=users)
+    completed_by_user = {
+        user.username: [task for task in tasks if task.get("completed_by") == user.username]
+        for user in users
+    }
+    return render_template("members.html", users=users, completed_by_user=completed_by_user)
 
 @app.route("/api/tasks", methods=["GET"])
 @login_required
