@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify, render_template, redirect, url_for, flash
 from flask_login import LoginManager, UserMixin, login_user, login_required, logout_user, current_user
-from datetime import datetime
+from datetime import datetime, timedelta
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key_here'
@@ -25,6 +25,132 @@ def load_user(user_id):
 
 tasks = []
 task_id = 1
+
+
+def normalize_priority(value):
+    mapping = {
+        "Niski": "Low",
+        "Średni": "Medium",
+        "Wysoki": "High"
+    }
+    normalized = mapping.get(value, value)
+    if normalized not in ["Low", "Medium", "High"]:
+        return "Medium"
+    return normalized
+
+
+def normalize_recurrence(value):
+    allowed = ["none", "daily", "weekly", "monthly"]
+    if value in allowed:
+        return value
+    return "none"
+
+
+def normalize_tags(value):
+    if isinstance(value, list):
+        raw_tags = value
+    elif isinstance(value, str):
+        raw_tags = value.split(",")
+    else:
+        raw_tags = []
+
+    cleaned = []
+    seen = set()
+    for tag in raw_tags:
+        tag_str = str(tag).strip()
+        if not tag_str:
+            continue
+        tag_key = tag_str.lower()
+        if tag_key in seen:
+            continue
+        seen.add(tag_key)
+        cleaned.append(tag_str)
+    return cleaned
+
+
+def normalize_due_date(raw_due_date):
+    if not raw_due_date:
+        return None
+    try:
+        datetime.strptime(raw_due_date, "%Y-%m-%d")
+        return raw_due_date
+    except ValueError:
+        return None
+
+
+def ensure_task_defaults(task):
+    task["priority"] = normalize_priority(task.get("priority", "Medium"))
+    task["project"] = str(task.get("project", "General") or "General").strip() or "General"
+    task["tags"] = normalize_tags(task.get("tags", []))
+    task["recurrence"] = normalize_recurrence(task.get("recurrence", "none"))
+    task["attachment_url"] = (task.get("attachment_url") or "").strip() or None
+    task["comments"] = task.get("comments") if isinstance(task.get("comments"), list) else []
+    task["due_date"] = normalize_due_date(task.get("due_date"))
+    task["parent_task_id"] = task.get("parent_task_id")
+    return task
+
+
+def compute_next_due_date(task):
+    recurrence = task.get("recurrence", "none")
+    if recurrence == "none":
+        return None
+
+    base_str = task.get("due_date")
+    if base_str:
+        try:
+            base_date = datetime.strptime(base_str, "%Y-%m-%d").date()
+        except ValueError:
+            base_date = datetime.now().date()
+    else:
+        base_date = datetime.now().date()
+
+    if recurrence == "daily":
+        return (base_date + timedelta(days=1)).strftime("%Y-%m-%d")
+    if recurrence == "weekly":
+        return (base_date + timedelta(days=7)).strftime("%Y-%m-%d")
+    if recurrence == "monthly":
+        year = base_date.year
+        month = base_date.month + 1
+        if month > 12:
+            month = 1
+            year += 1
+
+        first_next_next_month = datetime(year + (1 if month == 12 else 0), 1 if month == 12 else month + 1, 1)
+        last_day_target = (first_next_next_month - timedelta(days=1)).day
+        day = min(base_date.day, last_day_target)
+        return datetime(year, month, day).strftime("%Y-%m-%d")
+
+    return None
+
+
+def create_recurring_task(source_task):
+    global task_id
+
+    next_due_date = compute_next_due_date(source_task)
+    if not next_due_date:
+        return None
+
+    next_task = {
+        "id": task_id,
+        "title": source_task.get("title"),
+        "priority": source_task.get("priority", "Medium"),
+        "done": False,
+        "user": source_task.get("user", current_user.username),
+        "created_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "due_date": next_due_date,
+        "completed_at": None,
+        "completed_by": None,
+        "project": source_task.get("project", "General"),
+        "tags": list(source_task.get("tags", [])),
+        "recurrence": source_task.get("recurrence", "none"),
+        "attachment_url": source_task.get("attachment_url"),
+        "comments": [],
+        "parent_task_id": source_task.get("id")
+    }
+
+    tasks.append(ensure_task_defaults(next_task))
+    task_id += 1
+    return next_task
 
 @app.route("/")
 @login_required
@@ -80,40 +206,56 @@ def members():
 @app.route("/api/tasks", methods=["GET"])
 @login_required
 def get_tasks():
+    for task in tasks:
+        ensure_task_defaults(task)
     return jsonify(tasks)
 
 @app.route("/api/tasks", methods=["POST"])
 @login_required
 def add_task():
     global task_id
-    data = request.json
+    data = request.json or {}
 
-    priority = data.get("priority", "Medium")
-    if priority not in ["Low", "Medium", "High"]:
-        priority = "Medium"
+    title = str(data.get("title", "")).strip()
+    if not title:
+        return jsonify({"error": "Task title is required"}), 400
 
-    due_date = None
-    raw_due_date = data.get("due_date")
-    if raw_due_date:
-        try:
-            datetime.strptime(raw_due_date, "%Y-%m-%d")
-            due_date = raw_due_date
-        except ValueError:
-            due_date = None
+    priority = normalize_priority(data.get("priority", "Medium"))
+    due_date = normalize_due_date(data.get("due_date"))
+    project = str(data.get("project", "General") or "General").strip() or "General"
+    tags = normalize_tags(data.get("tags", []))
+    recurrence = normalize_recurrence(data.get("recurrence", "none"))
+    attachment_url = (data.get("attachment_url") or "").strip() or None
+
+    comments = []
+    initial_note = str(data.get("initial_note", "")).strip()
+    if initial_note:
+        comments.append({
+            "id": 1,
+            "text": initial_note,
+            "author": current_user.username,
+            "created_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        })
 
     task = {
         "id": task_id,
-        "title": data.get("title"),
+        "title": title,
         "priority": priority,
         "done": False,
         "user": current_user.username,
         "created_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
         "due_date": due_date,
         "completed_at": None,
-        "completed_by": None
+        "completed_by": None,
+        "project": project,
+        "tags": tags,
+        "recurrence": recurrence,
+        "attachment_url": attachment_url,
+        "comments": comments,
+        "parent_task_id": None
     }
 
-    tasks.append(task)
+    tasks.append(ensure_task_defaults(task))
     task_id += 1
 
     return jsonify(task), 201
@@ -121,9 +263,11 @@ def add_task():
 @app.route("/api/tasks/<int:id>", methods=["PUT"])
 @login_required
 def update_task(id):
-    data = request.json
+    data = request.json or {}
     for task in tasks:
         if task["id"] == id:
+            ensure_task_defaults(task)
+            was_done = task.get("done", False)
             task["done"] = data.get("done", task["done"])
 
             if task["done"]:
@@ -134,21 +278,42 @@ def update_task(id):
                 task["completed_by"] = None
 
             if "priority" in data:
-                priority = data.get("priority")
-                if priority in ["Low", "Medium", "High"]:
-                    task["priority"] = priority
+                task["priority"] = normalize_priority(data.get("priority"))
 
             if "due_date" in data:
-                due_date = data.get("due_date")
-                if due_date:
-                    try:
-                        datetime.strptime(due_date, "%Y-%m-%d")
-                        task["due_date"] = due_date
-                    except ValueError:
-                        pass
-                else:
-                    task["due_date"] = None
-            
+                task["due_date"] = normalize_due_date(data.get("due_date"))
+
+            if "title" in data:
+                title = str(data.get("title", "")).strip()
+                if title:
+                    task["title"] = title
+
+            if "project" in data:
+                task["project"] = str(data.get("project", "General") or "General").strip() or "General"
+
+            if "tags" in data:
+                task["tags"] = normalize_tags(data.get("tags", []))
+
+            if "recurrence" in data:
+                task["recurrence"] = normalize_recurrence(data.get("recurrence"))
+
+            if "attachment_url" in data:
+                task["attachment_url"] = (data.get("attachment_url") or "").strip() or None
+
+            if "comment" in data:
+                comment_text = str(data.get("comment", "")).strip()
+                if comment_text:
+                    next_comment_id = max([c.get("id", 0) for c in task["comments"]], default=0) + 1
+                    task["comments"].append({
+                        "id": next_comment_id,
+                        "text": comment_text,
+                        "author": current_user.username,
+                        "created_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                    })
+
+            if task["done"] and not was_done and task.get("recurrence") != "none":
+                create_recurring_task(task)
+
             return jsonify(task)
     return jsonify({"error": "Task not found"}), 404
 

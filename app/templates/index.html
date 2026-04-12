@@ -31,6 +31,33 @@
     </div>
 </div>
 
+<div class="row g-3 mb-4" id="insightRow">
+    <div class="col-6 col-xl-3">
+        <div class="insight-card p-3">
+            <div class="insight-label">Total Tasks</div>
+            <div class="insight-value" id="statTotal">0</div>
+        </div>
+    </div>
+    <div class="col-6 col-xl-3">
+        <div class="insight-card p-3">
+            <div class="insight-label">Open Tasks</div>
+            <div class="insight-value" id="statOpen">0</div>
+        </div>
+    </div>
+    <div class="col-6 col-xl-3">
+        <div class="insight-card p-3">
+            <div class="insight-label">Due Today</div>
+            <div class="insight-value" id="statToday">0</div>
+        </div>
+    </div>
+    <div class="col-6 col-xl-3">
+        <div class="insight-card p-3">
+            <div class="insight-label">Completed</div>
+            <div class="insight-value" id="statDone">0</div>
+        </div>
+    </div>
+</div>
+
 <div class="row g-4">
     <div class="col-12 col-xl-4">
         <div class="card p-4 h-100">
@@ -54,6 +81,41 @@
                         <input type="date" class="form-control" id="taskDueDate" placeholder="Due date">
                     </div>
                 </div>
+                <div class="row g-3 mb-3">
+                    <div class="col-6">
+                        <label for="taskProject" class="form-label">Project</label>
+                        <input type="text" class="form-control" id="taskProject" value="General" placeholder="General">
+                    </div>
+                    <div class="col-6">
+                        <label for="taskRecurrence" class="form-label">Repeat</label>
+                        <select class="form-select" id="taskRecurrence">
+                            <option value="none" selected>Do not repeat</option>
+                            <option value="daily">Daily</option>
+                            <option value="weekly">Weekly</option>
+                            <option value="monthly">Monthly</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="taskTags" class="form-label">Tags</label>
+                    <input type="text" class="form-control" id="taskTags" placeholder="frontend, urgent, meeting">
+                </div>
+                <div class="mb-3">
+                    <label for="taskAttachment" class="form-label">Attachment URL</label>
+                    <input type="url" class="form-control" id="taskAttachment" placeholder="https://example.com/file">
+                </div>
+                <div class="mb-3">
+                    <label for="taskInitialNote" class="form-label">Initial note</label>
+                    <textarea class="form-control" id="taskInitialNote" rows="2" placeholder="Optional note for this task"></textarea>
+                </div>
+                <div class="mb-3">
+                    <div class="small text-muted mb-2">Quick templates</div>
+                    <div class="template-row">
+                        <button class="btn btn-outline-secondary btn-sm template-btn" type="button" data-template="standup">Daily standup</button>
+                        <button class="btn btn-outline-secondary btn-sm template-btn" type="button" data-template="review">Code review</button>
+                        <button class="btn btn-outline-secondary btn-sm template-btn" type="button" data-template="release">Release prep</button>
+                    </div>
+                </div>
                 <button class="btn btn-primary w-100" type="submit">Add Task</button>
             </form>
         </div>
@@ -66,16 +128,38 @@
                 <button class="btn btn-outline-secondary btn-sm calendar-nav" id="calendarNext" type="button" aria-label="Next month">&#8250;</button>
             </div>
             <div class="calendar-grid" id="calendarGrid"></div>
-            <div class="small text-muted mt-3" id="calendarHint">Click a date to set the task deadline.</div>
+            <div class="small text-muted mt-3" id="calendarHint">Click a date to set deadline and filter tasks.</div>
+            <button class="btn btn-outline-secondary btn-sm mt-3" id="clearDateFilter" type="button">Clear date filter</button>
         </div>
     </div>
     <div class="col-12 col-xl-4">
         <div class="card p-4 h-100">
-            <div class="d-flex justify-content-between align-items-center mb-3">
-                <div>
-                    <h2 class="h5 mb-1">Your Tasks</h2>
-                    <p class="text-muted mb-0">Manage tasks, mark completion, and clear what is done.</p>
+            <div class="mb-3">
+                <h2 class="h5 mb-1">Your Tasks</h2>
+                <p class="text-muted mb-3">Manage tasks, comments, and repeat schedules with smart filters.</p>
+                <div class="task-toolbar mb-2">
+                    <button type="button" class="btn btn-outline-secondary btn-sm view-chip active" data-view="all">All</button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm view-chip" data-view="today">Today</button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm view-chip" data-view="week">This Week</button>
+                    <button type="button" class="btn btn-outline-secondary btn-sm view-chip" data-view="overdue">Overdue</button>
                 </div>
+                <div class="row g-2 mb-2">
+                    <div class="col-7">
+                        <input type="search" id="taskSearch" class="form-control form-control-sm" placeholder="Search title, tags, notes, project...">
+                    </div>
+                    <div class="col-5">
+                        <select id="taskSort" class="form-select form-select-sm">
+                            <option value="due-asc">Sort: Due date</option>
+                            <option value="priority">Sort: Priority</option>
+                            <option value="newest">Sort: Newest</option>
+                            <option value="title">Sort: Title</option>
+                        </select>
+                    </div>
+                </div>
+                <select id="projectFilter" class="form-select form-select-sm">
+                    <option value="all">All projects</option>
+                </select>
+                <div class="small text-muted mt-2" id="activeFilters">No active date filter.</div>
             </div>
             <div id="taskList"></div>
         </div>
@@ -85,10 +169,19 @@
 
 {% block scripts %}
 <script>
+    const appState = {
+        tasks: [],
+        view: 'all',
+        selectedProject: 'all',
+        searchQuery: '',
+        sortBy: 'due-asc'
+    };
+
     const calendarState = {
         currentDate: new Date(),
         viewYear: new Date().getFullYear(),
-        viewMonth: new Date().getMonth()
+        viewMonth: new Date().getMonth(),
+        selectedDateFilter: null
     };
 
     function updateClock() {
@@ -115,6 +208,184 @@
         return `${year}-${m}-${d}`;
     }
 
+    function parseIsoDate(isoDate) {
+        if (!isoDate) return null;
+        const parsed = new Date(`${isoDate}T00:00:00`);
+        if (Number.isNaN(parsed.getTime())) return null;
+        return parsed;
+    }
+
+    function htmlEscape(value) {
+        return String(value || '')
+            .replaceAll('&', '&amp;')
+            .replaceAll('<', '&lt;')
+            .replaceAll('>', '&gt;')
+            .replaceAll('"', '&quot;')
+            .replaceAll("'", '&#39;');
+    }
+
+    function getTodayIso() {
+        const now = new Date();
+        return toIsoDate(now.getFullYear(), now.getMonth(), now.getDate());
+    }
+
+    function getWeekEndIso() {
+        const now = new Date();
+        now.setHours(0, 0, 0, 0);
+        now.setDate(now.getDate() + 6);
+        return toIsoDate(now.getFullYear(), now.getMonth(), now.getDate());
+    }
+
+    function normalizePriority(priority) {
+        const mapping = { Wysoki: 'High', 'Średni': 'Medium', Niski: 'Low' };
+        const normalized = mapping[priority] || priority;
+        return ['Low', 'Medium', 'High'].includes(normalized) ? normalized : 'Medium';
+    }
+
+    function priorityClass(priority) {
+        if (priority === 'High') return 'priority-wysoki';
+        if (priority === 'Low') return 'priority-niski';
+        return 'priority-sredni';
+    }
+
+    function recurrenceLabel(value) {
+        const labels = {
+            none: 'One-time',
+            daily: 'Daily',
+            weekly: 'Weekly',
+            monthly: 'Monthly'
+        };
+        return labels[value] || 'One-time';
+    }
+
+    function updateFilterSummary() {
+        const summary = document.getElementById('activeFilters');
+        if (!summary) return;
+
+        const parts = [];
+        if (calendarState.selectedDateFilter) {
+            parts.push(`Date: ${calendarState.selectedDateFilter}`);
+        }
+        if (appState.view !== 'all') {
+            parts.push(`View: ${appState.view}`);
+        }
+        if (appState.selectedProject !== 'all') {
+            parts.push(`Project: ${appState.selectedProject}`);
+        }
+        if (appState.searchQuery) {
+            parts.push(`Search: ${appState.searchQuery}`);
+        }
+
+        summary.textContent = parts.length ? parts.join(' | ') : 'No active date filter.';
+    }
+
+    function renderInsights(tasks) {
+        const total = tasks.length;
+        const done = tasks.filter(task => task.done).length;
+        const open = total - done;
+        const todayIso = getTodayIso();
+        const dueToday = tasks.filter(task => task.due_date === todayIso).length;
+
+        const setValue = (id, value) => {
+            const el = document.getElementById(id);
+            if (el) el.textContent = String(value);
+        };
+
+        setValue('statTotal', total);
+        setValue('statOpen', open);
+        setValue('statToday', dueToday);
+        setValue('statDone', done);
+    }
+
+    function priorityWeight(priority) {
+        if (priority === 'High') return 0;
+        if (priority === 'Medium') return 1;
+        return 2;
+    }
+
+    function applySort(tasks) {
+        const sorted = [...tasks];
+
+        if (appState.sortBy === 'priority') {
+            sorted.sort((a, b) => {
+                const p = priorityWeight(normalizePriority(a.priority)) - priorityWeight(normalizePriority(b.priority));
+                if (p !== 0) return p;
+                return (a.due_date || '9999-12-31').localeCompare(b.due_date || '9999-12-31');
+            });
+            return sorted;
+        }
+
+        if (appState.sortBy === 'newest') {
+            sorted.sort((a, b) => (b.id || 0) - (a.id || 0));
+            return sorted;
+        }
+
+        if (appState.sortBy === 'title') {
+            sorted.sort((a, b) => String(a.title || '').localeCompare(String(b.title || '')));
+            return sorted;
+        }
+
+        sorted.sort((a, b) => (a.due_date || '9999-12-31').localeCompare(b.due_date || '9999-12-31'));
+        return sorted;
+    }
+
+    function filterTasks(tasks) {
+        const todayIso = getTodayIso();
+        const weekEndIso = getWeekEndIso();
+
+        return tasks.filter(task => {
+            const dueDate = task.due_date || null;
+
+            if (appState.selectedProject !== 'all' && (task.project || 'General') !== appState.selectedProject) {
+                return false;
+            }
+
+            if (calendarState.selectedDateFilter && dueDate !== calendarState.selectedDateFilter) {
+                return false;
+            }
+
+            if (appState.view === 'today') {
+                return dueDate === todayIso;
+            }
+
+            if (appState.view === 'week') {
+                return Boolean(dueDate) && dueDate >= todayIso && dueDate <= weekEndIso;
+            }
+
+            if (appState.view === 'overdue') {
+                return Boolean(dueDate) && dueDate < todayIso && !task.done;
+            }
+
+            if (appState.searchQuery) {
+                const q = appState.searchQuery.toLowerCase();
+                const blob = [
+                    task.title,
+                    task.project,
+                    Array.isArray(task.tags) ? task.tags.join(' ') : '',
+                    Array.isArray(task.comments) ? task.comments.map(comment => comment.text || '').join(' ') : ''
+                ].join(' ').toLowerCase();
+                if (!blob.includes(q)) return false;
+            }
+
+            return true;
+        });
+    }
+
+    function renderProjectFilter(tasks) {
+        const select = document.getElementById('projectFilter');
+        if (!select) return;
+
+        const projects = [...new Set(tasks.map(task => task.project || 'General'))].sort((a, b) => a.localeCompare(b));
+        const options = ['<option value="all">All projects</option>'];
+        projects.forEach(project => {
+            options.push(`<option value="${htmlEscape(project)}">${htmlEscape(project)}</option>`);
+        });
+
+        select.innerHTML = options.join('');
+        select.value = projects.includes(appState.selectedProject) ? appState.selectedProject : 'all';
+        appState.selectedProject = select.value;
+    }
+
     function renderCalendar() {
         const grid = document.getElementById('calendarGrid');
         const monthLabel = document.getElementById('calendarMonthLabel');
@@ -128,6 +399,12 @@
         const firstDay = new Date(calendarState.viewYear, calendarState.viewMonth, 1);
         const daysInMonth = new Date(calendarState.viewYear, calendarState.viewMonth + 1, 0).getDate();
         const firstDayMondayIndex = (firstDay.getDay() + 6) % 7;
+        const dueDates = appState.tasks.reduce((acc, task) => {
+            if (task.due_date) {
+                acc[task.due_date] = (acc[task.due_date] || 0) + 1;
+            }
+            return acc;
+        }, {});
 
         let html = '';
         html += dayNames.map(day => `<div class="calendar-weekday">${day}</div>`).join('');
@@ -143,11 +420,14 @@
                 calendarState.viewYear === calendarState.currentDate.getFullYear();
 
             const isoDate = toIsoDate(calendarState.viewYear, calendarState.viewMonth, day);
-            const dueDateInput = document.getElementById('taskDueDate');
-            const isSelected = dueDateInput && dueDateInput.value === isoDate;
+            const isSelected = calendarState.selectedDateFilter === isoDate;
+            const hasTasks = Boolean(dueDates[isoDate]);
 
             html += `
-                <button class="calendar-cell calendar-day${isToday ? ' calendar-today' : ''}${isSelected ? ' calendar-selected' : ''}" type="button" data-date="${isoDate}">${day}</button>
+                <button class="calendar-cell calendar-day${isToday ? ' calendar-today' : ''}${isSelected ? ' calendar-selected' : ''}" type="button" data-date="${isoDate}">
+                    <span>${day}</span>
+                    ${hasTasks ? `<span class="calendar-dot">${dueDates[isoDate]}</span>` : ''}
+                </button>
             `;
         }
 
@@ -156,9 +436,16 @@
         grid.querySelectorAll('.calendar-day').forEach(button => {
             button.addEventListener('click', () => {
                 const dueDateInput = document.getElementById('taskDueDate');
-                if (!dueDateInput) return;
-                dueDateInput.value = button.dataset.date;
+                const clickedDate = button.dataset.date;
+                if (calendarState.selectedDateFilter === clickedDate) {
+                    calendarState.selectedDateFilter = null;
+                } else {
+                    calendarState.selectedDateFilter = clickedDate;
+                    if (dueDateInput) dueDateInput.value = clickedDate;
+                }
                 renderCalendar();
+                updateFilterSummary();
+                displayTasks(appState.tasks);
             });
         });
     }
@@ -182,6 +469,79 @@
         renderCalendar();
         loadTasks();
 
+        document.querySelectorAll('.view-chip').forEach(button => {
+            button.addEventListener('click', function () {
+                document.querySelectorAll('.view-chip').forEach(chip => chip.classList.remove('active'));
+                this.classList.add('active');
+                appState.view = this.dataset.view;
+                updateFilterSummary();
+                displayTasks(appState.tasks);
+            });
+        });
+
+        document.querySelectorAll('.template-btn').forEach(button => {
+            button.addEventListener('click', function () {
+                const type = this.dataset.template;
+                if (type === 'standup') {
+                    document.getElementById('taskTitle').value = 'Team standup summary';
+                    document.getElementById('taskPriority').value = 'Medium';
+                    document.getElementById('taskProject').value = 'Team Ops';
+                    document.getElementById('taskTags').value = 'standup, sync';
+                    document.getElementById('taskRecurrence').value = 'daily';
+                }
+                if (type === 'review') {
+                    document.getElementById('taskTitle').value = 'Review pull request';
+                    document.getElementById('taskPriority').value = 'High';
+                    document.getElementById('taskProject').value = 'Engineering';
+                    document.getElementById('taskTags').value = 'review, quality';
+                    document.getElementById('taskRecurrence').value = 'none';
+                }
+                if (type === 'release') {
+                    document.getElementById('taskTitle').value = 'Release checklist';
+                    document.getElementById('taskPriority').value = 'High';
+                    document.getElementById('taskProject').value = 'Product';
+                    document.getElementById('taskTags').value = 'release, deployment';
+                    document.getElementById('taskRecurrence').value = 'weekly';
+                }
+            });
+        });
+
+        const taskSearch = document.getElementById('taskSearch');
+        if (taskSearch) {
+            taskSearch.addEventListener('input', function () {
+                appState.searchQuery = this.value.trim();
+                updateFilterSummary();
+                displayTasks(appState.tasks);
+            });
+        }
+
+        const taskSort = document.getElementById('taskSort');
+        if (taskSort) {
+            taskSort.addEventListener('change', function () {
+                appState.sortBy = this.value;
+                displayTasks(appState.tasks);
+            });
+        }
+
+        const projectFilter = document.getElementById('projectFilter');
+        if (projectFilter) {
+            projectFilter.addEventListener('change', function () {
+                appState.selectedProject = this.value;
+                updateFilterSummary();
+                displayTasks(appState.tasks);
+            });
+        }
+
+        const clearDateFilter = document.getElementById('clearDateFilter');
+        if (clearDateFilter) {
+            clearDateFilter.addEventListener('click', function () {
+                calendarState.selectedDateFilter = null;
+                renderCalendar();
+                updateFilterSummary();
+                displayTasks(appState.tasks);
+            });
+        }
+
         const prevBtn = document.getElementById('calendarPrev');
         const nextBtn = document.getElementById('calendarNext');
         if (prevBtn) prevBtn.addEventListener('click', () => changeMonth(-1));
@@ -197,32 +557,66 @@
                 const title = document.getElementById('taskTitle').value.trim();
                 const priority = document.getElementById('taskPriority').value;
                 const dueDate = document.getElementById('taskDueDate').value;
+                const project = document.getElementById('taskProject').value.trim();
+                const tags = document.getElementById('taskTags').value;
+                const recurrence = document.getElementById('taskRecurrence').value;
+                const attachmentUrl = document.getElementById('taskAttachment').value.trim();
+                const initialNote = document.getElementById('taskInitialNote').value.trim();
                 if (!title) return;
-                addTask(title, priority, dueDate);
+                addTask({
+                    title,
+                    priority,
+                    dueDate,
+                    project,
+                    tags,
+                    recurrence,
+                    attachmentUrl,
+                    initialNote
+                });
                 document.getElementById('taskTitle').value = '';
                 document.getElementById('taskPriority').value = 'Medium';
                 document.getElementById('taskDueDate').value = '';
+                document.getElementById('taskProject').value = 'General';
+                document.getElementById('taskTags').value = '';
+                document.getElementById('taskRecurrence').value = 'none';
+                document.getElementById('taskAttachment').value = '';
+                document.getElementById('taskInitialNote').value = '';
                 renderCalendar();
             });
         }
+
+        updateFilterSummary();
     });
 
     async function loadTasks() {
         try {
             const response = await fetch('/api/tasks');
             const tasks = await response.json();
-            displayTasks(tasks);
+            appState.tasks = Array.isArray(tasks) ? tasks : [];
+            renderProjectFilter(appState.tasks);
+            renderCalendar();
+            renderInsights(appState.tasks);
+            displayTasks(appState.tasks);
         } catch (error) {
             console.error('Error loading tasks:', error);
         }
     }
 
-    async function addTask(title, priority, dueDate) {
+    async function addTask(payload) {
         try {
             const response = await fetch('/api/tasks', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ title, priority, due_date: dueDate })
+                body: JSON.stringify({
+                    title: payload.title,
+                    priority: payload.priority,
+                    due_date: payload.dueDate,
+                    project: payload.project || 'General',
+                    tags: payload.tags,
+                    recurrence: payload.recurrence,
+                    attachment_url: payload.attachmentUrl,
+                    initial_note: payload.initialNote
+                })
             });
             if (response.ok) {
                 loadTasks();
@@ -259,31 +653,76 @@
         }
     }
 
+    async function addComment(id) {
+        const comment = window.prompt('Add note for this task:');
+        if (!comment || !comment.trim()) return;
+
+        try {
+            const response = await fetch(`/api/tasks/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ comment: comment.trim() })
+            });
+            if (response.ok) {
+                loadTasks();
+            }
+        } catch (error) {
+            console.error('Error adding comment:', error);
+        }
+    }
+
     function displayTasks(tasks) {
         const taskList = document.getElementById('taskList');
         if (!taskList) return;
-        if (tasks.length === 0) {
+
+        const filtered = applySort(filterTasks(tasks));
+
+        if (filtered.length === 0) {
             taskList.innerHTML = '<p class="text-muted">No tasks yet. Add one above!</p>';
             return;
         }
 
-        taskList.innerHTML = tasks.map(task => {
-            const normalizedPriority = task.priority === 'Wysoki' ? 'High' : task.priority === 'Średni' ? 'Medium' : task.priority === 'Niski' ? 'Low' : task.priority;
-            const priorityClass = normalizedPriority === 'High' ? 'priority-wysoki' : normalizedPriority === 'Low' ? 'priority-niski' : 'priority-sredni';
+        taskList.innerHTML = filtered.map(task => {
+            const normalizedPriority = normalizePriority(task.priority);
+            const prioClass = priorityClass(normalizedPriority);
             const completedInfo = task.done && task.completed_at ? ` | Completed: ${task.completed_at}${task.completed_by ? ` | Completed by: ${task.completed_by}` : ''}` : '';
             const dueInfo = task.due_date ? ` | Due: ${task.due_date}` : '';
+            const project = task.project || 'General';
+            const tags = Array.isArray(task.tags) ? task.tags : [];
+            const comments = Array.isArray(task.comments) ? task.comments : [];
+            const recurrence = task.recurrence || 'none';
+
+            const tagsHtml = tags.length
+                ? `<div class="task-tags mt-2">${tags.map(tag => `<span class="tag-pill">${htmlEscape(tag)}</span>`).join('')}</div>`
+                : '';
+
+            const attachmentHtml = task.attachment_url
+                ? `<div class="small mt-2"><a href="${htmlEscape(task.attachment_url)}" target="_blank" rel="noopener noreferrer">Attachment</a></div>`
+                : '';
+
+            const commentsHtml = comments.length
+                ? `<ul class="task-comments mt-2 mb-0">${comments.map(comment => `<li><span class="fw-semibold">${htmlEscape(comment.author || 'User')}</span>: ${htmlEscape(comment.text || '')} <span class="text-muted">(${htmlEscape(comment.created_at || '')})</span></li>`).join('')}</ul>`
+                : '<div class="small text-muted mt-2">No notes yet.</div>';
 
             return `
                 <div class="task-item d-flex justify-content-between align-items-center gap-3 mb-3 p-3">
                     <div class="form-check flex-grow-1 mb-0">
                         <input class="form-check-input" type="checkbox" id="task${task.id}" ${task.done ? 'checked' : ''} onchange="toggleTask(${task.id})">
                         <label class="form-check-label ${task.done ? 'task-done' : ''} ms-2" for="task${task.id}">
-                            <span class="fw-semibold">${task.title}</span>
-                            <span class="priority-badge ${priorityClass}">${normalizedPriority}</span>
+                            <span class="fw-semibold">${htmlEscape(task.title)}</span>
+                            <span class="priority-badge ${prioClass}">${normalizedPriority}</span>
+                            <span class="project-pill">${htmlEscape(project)}</span>
+                            <span class="recurrence-pill">${recurrenceLabel(recurrence)}</span>
                         </label>
                         <div class="text-muted small mt-2">Created: ${task.created_at}${dueInfo} | User: ${task.user}${completedInfo}</div>
+                        ${tagsHtml}
+                        ${attachmentHtml}
+                        ${commentsHtml}
                     </div>
-                    <button class="btn btn-sm btn-outline-danger" onclick="deleteTask(${task.id})" aria-label="Delete task">&#x2715;</button>
+                    <div class="d-flex flex-column gap-2">
+                        <button class="btn btn-sm btn-outline-secondary" onclick="addComment(${task.id})" aria-label="Add note">Note</button>
+                        <button class="btn btn-sm btn-outline-danger" onclick="deleteTask(${task.id})" aria-label="Delete task">&#x2715;</button>
+                    </div>
                 </div>
             `;
         }).join('');

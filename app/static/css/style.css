@@ -273,6 +273,29 @@ html[data-theme="midnight"] .theme-select {
     color: var(--hero-subtitle);
 }
 
+.insight-card {
+    background: linear-gradient(150deg, var(--paper), color-mix(in srgb, var(--paper) 76%, #cffafe));
+    border: 1px solid var(--calendar-day-border);
+    border-radius: 1rem;
+    box-shadow: 0 14px 34px rgba(15, 23, 42, 0.16);
+}
+
+.insight-label {
+    font-size: 0.74rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    opacity: 0.8;
+}
+
+.insight-value {
+    font-family: "Space Grotesk", "Manrope", sans-serif;
+    font-size: 1.85rem;
+    font-weight: 700;
+    line-height: 1.1;
+    margin-top: 0.32rem;
+}
+
 .login-card {
     max-width: 420px;
     margin: 0 auto;
@@ -328,7 +351,26 @@ html[data-theme="midnight"] .theme-select {
     background: var(--calendar-day-bg);
     color: var(--calendar-day-text);
     font-weight: 600;
+    padding: 0.2rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 0.12rem;
     transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.calendar-dot {
+    min-width: 1rem;
+    height: 1rem;
+    border-radius: 999px;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 0.62rem;
+    font-weight: 700;
+    background: color-mix(in srgb, var(--accent) 24%, transparent);
+    color: color-mix(in srgb, var(--ink) 85%, #ffffff);
 }
 
 .calendar-day:hover {
@@ -348,6 +390,78 @@ html[data-theme="midnight"] .theme-select {
     color: #fff;
 }
 
+.calendar-selected .calendar-dot {
+    background: rgba(255, 255, 255, 0.22);
+    color: #ffffff;
+}
+
+.task-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.42rem;
+}
+
+.template-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+}
+
+.template-btn {
+    border-radius: 999px;
+}
+
+.view-chip.active {
+    background: linear-gradient(135deg, var(--accent), var(--warm));
+    color: #fff;
+    border-color: transparent;
+}
+
+.project-pill,
+.recurrence-pill,
+.tag-pill {
+    display: inline-flex;
+    align-items: center;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 0.2rem 0.55rem;
+    margin-left: 0.35rem;
+}
+
+.project-pill {
+    background: color-mix(in srgb, var(--accent) 18%, transparent);
+    color: var(--ink);
+}
+
+.recurrence-pill {
+    background: color-mix(in srgb, var(--warm) 24%, transparent);
+    color: var(--ink);
+}
+
+.task-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+}
+
+.tag-pill {
+    margin-left: 0;
+    background: color-mix(in srgb, var(--ink) 12%, transparent);
+    color: var(--ink);
+}
+
+.task-comments {
+    list-style: none;
+    padding-left: 0;
+}
+
+.task-comments li {
+    font-size: 0.8rem;
+    margin-bottom: 0.32rem;
+    line-height: 1.35;
+}
+
 html[data-theme="midnight"] .calendar-selected {
     background: linear-gradient(135deg, #0891b2, #0ea5e9);
 }
@@ -358,6 +472,12 @@ html[data-theme="midnight"] .text-muted {
 
 html[data-theme="midnight"] .badge.bg-primary {
     background: #0ea5e9 !important;
+}
+
+html[data-theme="midnight"] .project-pill,
+html[data-theme="midnight"] .recurrence-pill,
+html[data-theme="midnight"] .tag-pill {
+    color: #e2e8f0;
 }
 
 @media (max-width: 767px) {
