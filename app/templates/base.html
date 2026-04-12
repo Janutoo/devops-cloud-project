@@ -4,6 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}TaskFlow{% endblock %}</title>
+    <script>
+        (function () {
+            try {
+                const savedTheme = localStorage.getItem('taskflow-theme');
+                const validThemes = ['ocean', 'light', 'midnight'];
+                const theme = validThemes.includes(savedTheme) ? savedTheme : 'ocean';
+                document.documentElement.setAttribute('data-theme', theme);
+            } catch (error) {
+                document.documentElement.setAttribute('data-theme', 'ocean');
+            }
+        })();
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
@@ -12,7 +24,7 @@
 </head>
 <body>
     <div class="app-shell d-flex flex-column min-vh-100">
-        <nav class="navbar navbar-expand-lg navbar-dark bg-dark border-bottom shadow-sm">
+        <nav class="navbar navbar-expand-lg theme-navbar border-bottom shadow-sm">
             <div class="container">
                 <a class="navbar-brand fw-bold" href="{{ url_for('home') }}">TaskFlow</a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -34,6 +46,13 @@
                             <a class="nav-link" href="{{ url_for('logout') }}">Logout</a>
                         </li>
                         {% endif %}
+                        <li class="nav-item ms-lg-3 mt-2 mt-lg-0">
+                            <select id="themeSelect" class="form-select form-select-sm theme-select" aria-label="Theme selector">
+                                <option value="ocean">Ocean</option>
+                                <option value="light">Light</option>
+                                <option value="midnight">Midnight</option>
+                            </select>
+                        </li>
                     </ul>
                 </div>
             </div>
@@ -60,7 +79,7 @@
             </div>
         </main>
 
-        <footer class="footer py-4 bg-dark text-white-50">
+        <footer class="footer py-4">
             <div class="container text-center small">
                 Crafted by Janutoo © 2026 TaskFlow.
             </div>
@@ -68,6 +87,32 @@
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        (function () {
+            const validThemes = ['ocean', 'light', 'midnight'];
+
+            function applyTheme(theme) {
+                if (!validThemes.includes(theme)) return;
+                document.documentElement.setAttribute('data-theme', theme);
+                try {
+                    localStorage.setItem('taskflow-theme', theme);
+                } catch (error) {
+                }
+            }
+
+            document.addEventListener('DOMContentLoaded', function () {
+                const select = document.getElementById('themeSelect');
+                if (!select) return;
+
+                const activeTheme = document.documentElement.getAttribute('data-theme') || 'ocean';
+                select.value = validThemes.includes(activeTheme) ? activeTheme : 'ocean';
+
+                select.addEventListener('change', function () {
+                    applyTheme(select.value);
+                });
+            });
+        })();
+    </script>
     {% block scripts %}{% endblock %}
 </body>
 </html>

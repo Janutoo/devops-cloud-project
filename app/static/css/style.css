@@ -1,24 +1,134 @@
 :root {
-    color: #f8fafc;
-    background: #0b1220;
     font-family: "Manrope", "Segoe UI", sans-serif;
     --ink: #0b1220;
     --paper: rgba(255, 255, 255, 0.96);
+    --paper-alt: rgba(255, 255, 255, 0.92);
     --accent: #0e7490;
     --accent-strong: #155e75;
     --warm: #f97316;
+    --bg-base: #020617;
+    --bg-glow-a: rgba(14, 116, 144, 0.28);
+    --bg-glow-b: rgba(249, 115, 22, 0.2);
+    --bg-glow-c: rgba(20, 184, 166, 0.14);
+    --shell-bg: linear-gradient(180deg, rgba(2, 6, 23, 0.84), rgba(15, 23, 42, 0.9));
+    --nav-bg: rgba(2, 6, 23, 0.88);
+    --nav-border: rgba(255, 255, 255, 0.12);
+    --nav-link: rgba(248, 250, 252, 0.9);
+    --footer-bg: rgba(15, 23, 42, 0.98);
+    --footer-text: rgba(248, 250, 252, 0.75);
+    --hero-subtitle: #475569;
+    --calendar-weekday: #334155;
+    --calendar-empty: transparent;
+    --calendar-day-bg: #ffffff;
+    --calendar-day-text: #0f172a;
+    --calendar-day-border: rgba(15, 23, 42, 0.12);
+}
+
+html[data-theme="light"] {
+    --ink: #0f172a;
+    --paper: rgba(255, 255, 255, 0.98);
+    --paper-alt: rgba(248, 250, 252, 0.94);
+    --accent: #0369a1;
+    --accent-strong: #075985;
+    --warm: #ea580c;
+    --bg-base: #e6edf7;
+    --bg-glow-a: rgba(14, 116, 144, 0.2);
+    --bg-glow-b: rgba(245, 158, 11, 0.18);
+    --bg-glow-c: rgba(2, 132, 199, 0.14);
+    --shell-bg: linear-gradient(180deg, rgba(255, 255, 255, 0.74), rgba(226, 232, 240, 0.88));
+    --nav-bg: rgba(255, 255, 255, 0.86);
+    --nav-border: rgba(15, 23, 42, 0.12);
+    --nav-link: #0f172a;
+    --footer-bg: rgba(255, 255, 255, 0.9);
+    --footer-text: rgba(15, 23, 42, 0.72);
+    --hero-subtitle: #334155;
+    --calendar-weekday: #1e293b;
+    --calendar-empty: rgba(255, 255, 255, 0.45);
+    --calendar-day-bg: #f8fafc;
+    --calendar-day-text: #0f172a;
+    --calendar-day-border: rgba(15, 23, 42, 0.14);
+}
+
+html[data-theme="midnight"] {
+    --ink: #e2e8f0;
+    --paper: rgba(15, 23, 42, 0.94);
+    --paper-alt: rgba(30, 41, 59, 0.86);
+    --accent: #22d3ee;
+    --accent-strong: #06b6d4;
+    --warm: #f43f5e;
+    --bg-base: #02030c;
+    --bg-glow-a: rgba(34, 211, 238, 0.2);
+    --bg-glow-b: rgba(244, 63, 94, 0.18);
+    --bg-glow-c: rgba(56, 189, 248, 0.14);
+    --shell-bg: linear-gradient(180deg, rgba(2, 6, 23, 0.92), rgba(15, 23, 42, 0.96));
+    --nav-bg: rgba(2, 6, 23, 0.92);
+    --nav-border: rgba(148, 163, 184, 0.22);
+    --nav-link: rgba(226, 232, 240, 0.9);
+    --footer-bg: rgba(2, 6, 23, 0.95);
+    --footer-text: rgba(148, 163, 184, 0.9);
+    --hero-subtitle: #cbd5e1;
+    --calendar-weekday: #cbd5e1;
+    --calendar-empty: rgba(2, 6, 23, 0.1);
+    --calendar-day-bg: rgba(15, 23, 42, 0.82);
+    --calendar-day-text: #e2e8f0;
+    --calendar-day-border: rgba(148, 163, 184, 0.22);
 }
 
 body {
-    background: radial-gradient(circle at 8% 5%, rgba(14, 116, 144, 0.28), transparent 30%),
-                radial-gradient(circle at 88% 0%, rgba(249, 115, 22, 0.2), transparent 28%),
-                radial-gradient(circle at 10% 95%, rgba(20, 184, 166, 0.14), transparent 32%),
-                #020617;
+    background: radial-gradient(circle at 8% 5%, var(--bg-glow-a), transparent 30%),
+                radial-gradient(circle at 88% 0%, var(--bg-glow-b), transparent 28%),
+                radial-gradient(circle at 10% 95%, var(--bg-glow-c), transparent 32%),
+                var(--bg-base);
     min-height: 100vh;
 }
 
 .app-shell {
-    background: linear-gradient(180deg, rgba(2, 6, 23, 0.84), rgba(15, 23, 42, 0.9));
+    background: var(--shell-bg);
+}
+
+.theme-navbar {
+    background: var(--nav-bg);
+    border-color: var(--nav-border) !important;
+}
+
+.theme-navbar .navbar-brand,
+.theme-navbar .nav-link {
+    color: var(--nav-link) !important;
+}
+
+.theme-navbar .nav-link:hover,
+.theme-navbar .nav-link:focus {
+    color: #ffffff !important;
+}
+
+.theme-navbar .navbar-toggler {
+    border-color: var(--nav-border);
+}
+
+.theme-navbar .navbar-toggler-icon {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28248,250,252,0.95%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+}
+
+html[data-theme="light"] .theme-navbar .nav-link:hover,
+html[data-theme="light"] .theme-navbar .nav-link:focus {
+    color: #0b3b4a !important;
+}
+
+html[data-theme="light"] .theme-navbar .navbar-toggler-icon {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%2815,23,42,0.9%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+}
+
+.theme-select {
+    min-width: 8.25rem;
+    border-radius: 0.7rem;
+    border: 1px solid var(--nav-border);
+    background: rgba(255, 255, 255, 0.9);
+    color: #0f172a;
+}
+
+html[data-theme="midnight"] .theme-select {
+    background: rgba(15, 23, 42, 0.88);
+    color: #e2e8f0;
 }
 
 .navbar-brand {
@@ -31,7 +141,7 @@ body {
 .member-item,
 .login-card {
     background: var(--paper);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border: 1px solid var(--calendar-day-border);
     box-shadow: 0 24px 70px rgba(15, 23, 42, 0.35);
     color: var(--ink);
     border-radius: 1.15rem;
@@ -57,14 +167,14 @@ body {
 
 .btn-outline-primary {
     color: var(--ink);
-    border-color: rgba(15, 23, 42, 0.14);
-    background: rgba(255, 255, 255, 0.92);
+    border-color: var(--calendar-day-border);
+    background: var(--paper-alt);
 }
 
 .btn-outline-secondary {
     color: var(--ink);
-    border-color: rgba(15, 23, 42, 0.14);
-    background: rgba(255, 255, 255, 0.92);
+    border-color: var(--calendar-day-border);
+    background: var(--paper-alt);
 }
 
 .btn-outline-secondary:hover,
@@ -78,8 +188,13 @@ body {
 .form-select,
 .input-group-text {
     border-radius: 0.85rem;
-    border: 1px solid rgba(15, 23, 42, 0.14);
-    background: #fff;
+    border: 1px solid var(--calendar-day-border);
+    background: var(--calendar-day-bg);
+    color: var(--ink);
+}
+
+.form-control::placeholder {
+    color: color-mix(in srgb, var(--ink) 45%, transparent);
 }
 
 .task-item {
@@ -142,7 +257,7 @@ body {
 }
 
 .hero-panel {
-    background: linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(240, 249, 255, 0.95));
+    background: linear-gradient(135deg, var(--paper), color-mix(in srgb, var(--paper) 75%, #dbeafe));
     border-radius: 1.4rem;
     padding: 2rem;
     box-shadow: 0 24px 60px rgba(15, 23, 42, 0.22);
@@ -155,7 +270,7 @@ body {
 }
 
 .hero-subtitle {
-    color: #475569;
+    color: var(--hero-subtitle);
 }
 
 .login-card {
@@ -165,11 +280,12 @@ body {
 }
 
 .footer {
-    background: rgba(15, 23, 42, 0.98);
+    background: var(--footer-bg);
+    color: var(--footer-text);
 }
 
 .calendar-panel {
-    background: linear-gradient(155deg, rgba(255, 255, 255, 0.98), rgba(236, 253, 245, 0.96));
+    background: linear-gradient(155deg, var(--paper), color-mix(in srgb, var(--paper) 76%, #d1fae5));
 }
 
 .calendar-nav {
@@ -191,12 +307,12 @@ body {
     text-align: center;
     font-size: 0.74rem;
     font-weight: 700;
-    color: #334155;
+    color: var(--calendar-weekday);
     text-transform: uppercase;
 }
 
 .calendar-cell {
-    border: 1px solid rgba(15, 23, 42, 0.12);
+    border: 1px solid var(--calendar-day-border);
     border-radius: 0.65rem;
     min-height: 2.2rem;
     display: grid;
@@ -205,12 +321,12 @@ body {
 
 .calendar-empty {
     border-color: transparent;
-    background: transparent;
+    background: var(--calendar-empty);
 }
 
 .calendar-day {
-    background: #ffffff;
-    color: #0f172a;
+    background: var(--calendar-day-bg);
+    color: var(--calendar-day-text);
     font-weight: 600;
     transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
@@ -230,6 +346,18 @@ body {
     background: linear-gradient(135deg, #0e7490, #14b8a6);
     border-color: transparent;
     color: #fff;
+}
+
+html[data-theme="midnight"] .calendar-selected {
+    background: linear-gradient(135deg, #0891b2, #0ea5e9);
+}
+
+html[data-theme="midnight"] .text-muted {
+    color: #94a3b8 !important;
+}
+
+html[data-theme="midnight"] .badge.bg-primary {
+    background: #0ea5e9 !important;
 }
 
 @media (max-width: 767px) {
