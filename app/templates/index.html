@@ -5,7 +5,7 @@
 {% block content %}
 <div class="clock-widget mb-5">
     <div>
-        <strong>Bieżący czas i data</strong>
+        <strong>Current time and date</strong>
     </div>
     <div class="clock-time" id="clockDisplay">00:00:00</div>
     <div class="clock-date" id="dateDisplay">--:--:--</div>
@@ -32,7 +32,7 @@
 </div>
 
 <div class="row g-4">
-    <div class="col-12 col-xl-5">
+    <div class="col-12 col-xl-4">
         <div class="card p-4 h-100">
             <h2 class="h5 mb-3">Add New Task</h2>
             <form id="addTaskForm">
@@ -44,9 +44,9 @@
                     <div class="col-6">
                         <label for="taskPriority" class="form-label">Priority</label>
                         <select class="form-select" id="taskPriority">
-                            <option value="Niski">Niski</option>
-                            <option value="Średni" selected>Średni</option>
-                            <option value="Wysoki">Wysoki</option>
+                            <option value="Low">Low</option>
+                            <option value="Medium" selected>Medium</option>
+                            <option value="High">High</option>
                         </select>
                     </div>
                     <div class="col-6">
@@ -58,7 +58,18 @@
             </form>
         </div>
     </div>
-    <div class="col-12 col-xl-7">
+    <div class="col-12 col-xl-4">
+        <div class="card p-4 h-100 calendar-panel">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <button class="btn btn-outline-secondary btn-sm calendar-nav" id="calendarPrev" type="button" aria-label="Previous month">&#8249;</button>
+                <h2 class="h5 mb-0" id="calendarMonthLabel">Month</h2>
+                <button class="btn btn-outline-secondary btn-sm calendar-nav" id="calendarNext" type="button" aria-label="Next month">&#8250;</button>
+            </div>
+            <div class="calendar-grid" id="calendarGrid"></div>
+            <div class="small text-muted mt-3" id="calendarHint">Click a date to set the task deadline.</div>
+        </div>
+    </div>
+    <div class="col-12 col-xl-4">
         <div class="card p-4 h-100">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <div>
@@ -74,13 +85,19 @@
 
 {% block scripts %}
 <script>
+    const calendarState = {
+        currentDate: new Date(),
+        viewYear: new Date().getFullYear(),
+        viewMonth: new Date().getMonth()
+    };
+
     function updateClock() {
         const now = new Date();
         const hours = String(now.getHours()).padStart(2, '0');
         const minutes = String(now.getMinutes()).padStart(2, '0');
         const seconds = String(now.getSeconds()).padStart(2, '0');
-        const days = ['Niedziela', 'Poniedziałek', 'Wtorek', 'Środa', 'Czwartek', 'Piątek', 'Sobota'];
-        const months = ['Styczeń', 'Luty', 'Marzec', 'Kwiecień', 'Maj', 'Czerwiec', 'Lipiec', 'Sierpień', 'Wrzesień', 'Październik', 'Listopad', 'Grudzień'];
+        const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+        const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
         const dayName = days[now.getDay()];
         const day = now.getDate();
         const month = months[now.getMonth()];
@@ -92,10 +109,86 @@
         document.getElementById('dateDisplay').textContent = dateString;
     }
 
+    function toIsoDate(year, month, day) {
+        const m = String(month + 1).padStart(2, '0');
+        const d = String(day).padStart(2, '0');
+        return `${year}-${m}-${d}`;
+    }
+
+    function renderCalendar() {
+        const grid = document.getElementById('calendarGrid');
+        const monthLabel = document.getElementById('calendarMonthLabel');
+        if (!grid || !monthLabel) return;
+
+        const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+        const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+
+        monthLabel.textContent = `${monthNames[calendarState.viewMonth]} ${calendarState.viewYear}`;
+
+        const firstDay = new Date(calendarState.viewYear, calendarState.viewMonth, 1);
+        const daysInMonth = new Date(calendarState.viewYear, calendarState.viewMonth + 1, 0).getDate();
+        const firstDayMondayIndex = (firstDay.getDay() + 6) % 7;
+
+        let html = '';
+        html += dayNames.map(day => `<div class="calendar-weekday">${day}</div>`).join('');
+
+        for (let i = 0; i < firstDayMondayIndex; i += 1) {
+            html += '<div class="calendar-cell calendar-empty"></div>';
+        }
+
+        for (let day = 1; day <= daysInMonth; day += 1) {
+            const isToday =
+                day === calendarState.currentDate.getDate() &&
+                calendarState.viewMonth === calendarState.currentDate.getMonth() &&
+                calendarState.viewYear === calendarState.currentDate.getFullYear();
+
+            const isoDate = toIsoDate(calendarState.viewYear, calendarState.viewMonth, day);
+            const dueDateInput = document.getElementById('taskDueDate');
+            const isSelected = dueDateInput && dueDateInput.value === isoDate;
+
+            html += `
+                <button class="calendar-cell calendar-day${isToday ? ' calendar-today' : ''}${isSelected ? ' calendar-selected' : ''}" type="button" data-date="${isoDate}">${day}</button>
+            `;
+        }
+
+        grid.innerHTML = html;
+
+        grid.querySelectorAll('.calendar-day').forEach(button => {
+            button.addEventListener('click', () => {
+                const dueDateInput = document.getElementById('taskDueDate');
+                if (!dueDateInput) return;
+                dueDateInput.value = button.dataset.date;
+                renderCalendar();
+            });
+        });
+    }
+
+    function changeMonth(delta) {
+        calendarState.viewMonth += delta;
+        if (calendarState.viewMonth < 0) {
+            calendarState.viewMonth = 11;
+            calendarState.viewYear -= 1;
+        }
+        if (calendarState.viewMonth > 11) {
+            calendarState.viewMonth = 0;
+            calendarState.viewYear += 1;
+        }
+        renderCalendar();
+    }
+
     document.addEventListener('DOMContentLoaded', function () {
         updateClock();
         setInterval(updateClock, 1000);
+        renderCalendar();
         loadTasks();
+
+        const prevBtn = document.getElementById('calendarPrev');
+        const nextBtn = document.getElementById('calendarNext');
+        if (prevBtn) prevBtn.addEventListener('click', () => changeMonth(-1));
+        if (nextBtn) nextBtn.addEventListener('click', () => changeMonth(1));
+
+        const dueDateInput = document.getElementById('taskDueDate');
+        if (dueDateInput) dueDateInput.addEventListener('change', renderCalendar);
 
         const form = document.getElementById('addTaskForm');
         if (form) {
@@ -107,8 +200,9 @@
                 if (!title) return;
                 addTask(title, priority, dueDate);
                 document.getElementById('taskTitle').value = '';
-                document.getElementById('taskPriority').value = 'Średni';
+                document.getElementById('taskPriority').value = 'Medium';
                 document.getElementById('taskDueDate').value = '';
+                renderCalendar();
             });
         }
     });
@@ -174,9 +268,10 @@
         }
 
         taskList.innerHTML = tasks.map(task => {
-            const priorityClass = task.priority === 'Wysoki' ? 'priority-wysoki' : task.priority === 'Niski' ? 'priority-niski' : 'priority-sredni';
-            const completedInfo = task.done && task.completed_at ? ` | Zakończony: ${task.completed_at}${task.completed_by ? ` | Ukończył: ${task.completed_by}` : ''}` : '';
-            const dueInfo = task.due_date ? ` | Termin: ${task.due_date}` : '';
+            const normalizedPriority = task.priority === 'Wysoki' ? 'High' : task.priority === 'Średni' ? 'Medium' : task.priority === 'Niski' ? 'Low' : task.priority;
+            const priorityClass = normalizedPriority === 'High' ? 'priority-wysoki' : normalizedPriority === 'Low' ? 'priority-niski' : 'priority-sredni';
+            const completedInfo = task.done && task.completed_at ? ` | Completed: ${task.completed_at}${task.completed_by ? ` | Completed by: ${task.completed_by}` : ''}` : '';
+            const dueInfo = task.due_date ? ` | Due: ${task.due_date}` : '';
 
             return `
                 <div class="task-item d-flex justify-content-between align-items-center gap-3 mb-3 p-3">
@@ -184,9 +279,9 @@
                         <input class="form-check-input" type="checkbox" id="task${task.id}" ${task.done ? 'checked' : ''} onchange="toggleTask(${task.id})">
                         <label class="form-check-label ${task.done ? 'task-done' : ''} ms-2" for="task${task.id}">
                             <span class="fw-semibold">${task.title}</span>
-                            <span class="priority-badge ${priorityClass}">${task.priority}</span>
+                            <span class="priority-badge ${priorityClass}">${normalizedPriority}</span>
                         </label>
-                        <div class="text-muted small mt-2">Utworzony: ${task.created_at}${dueInfo} | Użytkownik: ${task.user}${completedInfo}</div>
+                        <div class="text-muted small mt-2">Created: ${task.created_at}${dueInfo} | User: ${task.user}${completedInfo}</div>
                     </div>
                     <button class="btn btn-sm btn-outline-danger" onclick="deleteTask(${task.id})" aria-label="Delete task">&#x2715;</button>
                 </div>

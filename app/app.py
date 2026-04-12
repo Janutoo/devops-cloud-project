@@ -3,13 +3,12 @@ from flask_login import LoginManager, UserMixin, login_user, login_required, log
 from datetime import datetime
 
 app = Flask(__name__)
-app.secret_key = 'your_secret_key_here'  # Change this in production
+app.secret_key = 'your_secret_key_here'
 
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
 
-# Simple in-memory user storage
 class User(UserMixin):
     def __init__(self, id, username):
         self.id = id
@@ -46,18 +45,15 @@ def login():
             flash("Password cannot be empty")
             return render_template("login.html")
         
-        # Check password
         if password != "passat":
             flash("Invalid password")
             return render_template("login.html")
 
-        # Search for existing user
         for user in users:
             if user.username == username:
                 login_user(user)
                 return redirect(url_for("home"))
 
-        # Create new user on the fly if not found
         next_id = max([u.id for u in users], default=0) + 1
         new_user = User(next_id, username)
         users.append(new_user)
@@ -91,11 +87,10 @@ def get_tasks():
 def add_task():
     global task_id
     data = request.json
-    
-    # Walidacja priorytetu
-    priority = data.get("priority", "Średni")
-    if priority not in ["Niski", "Średni", "Wysoki"]:
-        priority = "Średni"
+
+    priority = data.get("priority", "Medium")
+    if priority not in ["Low", "Medium", "High"]:
+        priority = "Medium"
 
     due_date = None
     raw_due_date = data.get("due_date")
@@ -130,19 +125,17 @@ def update_task(id):
     for task in tasks:
         if task["id"] == id:
             task["done"] = data.get("done", task["done"])
-            
-            # Dodaj datę zakończenia taska i autora zakończenia
+
             if task["done"]:
                 task["completed_at"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                 task["completed_by"] = current_user.username
             else:
                 task["completed_at"] = None
                 task["completed_by"] = None
-            
-            # Walidacja priorytetu
+
             if "priority" in data:
                 priority = data.get("priority")
-                if priority in ["Niski", "Średni", "Wysoki"]:
+                if priority in ["Low", "Medium", "High"]:
                     task["priority"] = priority
 
             if "due_date" in data:

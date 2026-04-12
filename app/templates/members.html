@@ -28,7 +28,7 @@
                                 <div>
                                     <strong>{{ user.username }}</strong>
                                     <div class="text-muted small">User ID: {{ user.id }}</div>
-                                    <div class="text-muted small">Ukończone zadania: {{ completed_tasks | length }}</div>
+                                    <div class="text-muted small">Completed tasks: {{ completed_tasks | length }}</div>
                                 </div>
                                 <div class="text-end">
                                     {% if user.username == current_user.username %}
@@ -38,7 +38,7 @@
                             </div>
                             {% if completed_tasks %}
                             <div class="mt-3">
-                                <div class="fw-semibold mb-2">Lista ukończonych zadań:</div>
+                                <div class="fw-semibold mb-2">Completed task list:</div>
                                 <ul class="list-unstyled mb-0 small">
                                     {% for task in completed_tasks %}
                                     <li class="mb-1">• {{ task.title }} <span class="text-muted">({{ task.completed_at }})</span></li>

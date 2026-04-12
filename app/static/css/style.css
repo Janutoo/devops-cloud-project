@@ -1,23 +1,28 @@
-/* Global theme */
 :root {
-    color-scheme: dark;
-    color: #eef2ff;
-    background: #0f172a;
-    font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    color: #f8fafc;
+    background: #0b1220;
+    font-family: "Manrope", "Segoe UI", sans-serif;
+    --ink: #0b1220;
+    --paper: rgba(255, 255, 255, 0.96);
+    --accent: #0e7490;
+    --accent-strong: #155e75;
+    --warm: #f97316;
 }
 
 body {
-    background: radial-gradient(circle at top left, rgba(59, 130, 246, 0.16), transparent 28%),
-                radial-gradient(circle at bottom right, rgba(168, 85, 247, 0.18), transparent 30%),
-                #050816;
+    background: radial-gradient(circle at 8% 5%, rgba(14, 116, 144, 0.28), transparent 30%),
+                radial-gradient(circle at 88% 0%, rgba(249, 115, 22, 0.2), transparent 28%),
+                radial-gradient(circle at 10% 95%, rgba(20, 184, 166, 0.14), transparent 32%),
+                #020617;
     min-height: 100vh;
 }
 
 .app-shell {
-    background: rgba(8, 15, 41, 0.92);
+    background: linear-gradient(180deg, rgba(2, 6, 23, 0.84), rgba(15, 23, 42, 0.9));
 }
 
 .navbar-brand {
+    font-family: "Space Grotesk", "Manrope", sans-serif;
     letter-spacing: 0.08em;
 }
 
@@ -25,10 +30,10 @@ body {
 .task-item,
 .member-item,
 .login-card {
-    background: rgba(255, 255, 255, 0.96);
+    background: var(--paper);
     border: 1px solid rgba(255, 255, 255, 0.08);
     box-shadow: 0 24px 70px rgba(15, 23, 42, 0.35);
-    color: #0f172a;
+    color: var(--ink);
     border-radius: 1.15rem;
 }
 
@@ -36,29 +41,37 @@ body {
 .hero-title,
 .member-item strong,
 .task-label {
-    color: #0f172a;
+    color: var(--ink);
 }
 
 .btn-primary {
-    background: linear-gradient(135deg, #4f46e5, #06b6d4);
+    background: linear-gradient(135deg, var(--accent), var(--warm));
     border: none;
+    color: #fff;
 }
 
 .btn-primary:hover,
 .btn-primary:focus {
-    background: linear-gradient(135deg, #4338ca, #0ea5e9);
+    background: linear-gradient(135deg, var(--accent-strong), #ea580c);
 }
 
 .btn-outline-primary {
-    color: #0f172a;
+    color: var(--ink);
     border-color: rgba(15, 23, 42, 0.14);
     background: rgba(255, 255, 255, 0.92);
 }
 
 .btn-outline-secondary {
-    color: #0f172a;
+    color: var(--ink);
     border-color: rgba(15, 23, 42, 0.14);
     background: rgba(255, 255, 255, 0.92);
+}
+
+.btn-outline-secondary:hover,
+.btn-outline-secondary:focus {
+    background: rgba(14, 116, 144, 0.12);
+    border-color: rgba(14, 116, 144, 0.32);
+    color: #0b3b4a;
 }
 
 .form-control,
@@ -84,20 +97,20 @@ body {
 }
 
 .clock-widget {
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: linear-gradient(130deg, #0e7490 0%, #0f766e 46%, #f97316 100%);
     color: white;
-    border-radius: 1rem;
+    border-radius: 1.2rem;
     padding: 2rem;
-    box-shadow: 0 8px 32px rgba(102, 126, 234, 0.25);
+    box-shadow: 0 20px 46px rgba(15, 23, 42, 0.32);
     text-align: center;
 }
 
 .clock-time {
-    font-size: 3.5rem;
+    font-family: "Space Grotesk", "Manrope", sans-serif;
+    font-size: 3.3rem;
     font-weight: bold;
-    font-family: 'Courier New', monospace;
     margin: 1rem 0;
-    letter-spacing: 0.15em;
+    letter-spacing: 0.09em;
 }
 
 .clock-date {
@@ -120,22 +133,23 @@ body {
 
 .priority-sredni {
     background: #f59e0b;
-    color: #0f172a;
+    color: var(--ink);
 }
 
 .priority-niski {
     background: #22c55e;
-    color: #0f172a;
+    color: var(--ink);
 }
 
 .hero-panel {
-    background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(248,250,252,0.95));
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(240, 249, 255, 0.95));
     border-radius: 1.4rem;
     padding: 2rem;
     box-shadow: 0 24px 60px rgba(15, 23, 42, 0.22);
 }
 
 .hero-title {
+    font-family: "Space Grotesk", "Manrope", sans-serif;
     font-size: clamp(2rem, 3vw, 3.25rem);
     line-height: 1.05;
 }
@@ -154,9 +168,77 @@ body {
     background: rgba(15, 23, 42, 0.98);
 }
 
+.calendar-panel {
+    background: linear-gradient(155deg, rgba(255, 255, 255, 0.98), rgba(236, 253, 245, 0.96));
+}
+
+.calendar-nav {
+    width: 2.25rem;
+    height: 2.25rem;
+    border-radius: 0.75rem;
+    padding: 0;
+    font-size: 1.2rem;
+    line-height: 1;
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 0.45rem;
+}
+
+.calendar-weekday {
+    text-align: center;
+    font-size: 0.74rem;
+    font-weight: 700;
+    color: #334155;
+    text-transform: uppercase;
+}
+
+.calendar-cell {
+    border: 1px solid rgba(15, 23, 42, 0.12);
+    border-radius: 0.65rem;
+    min-height: 2.2rem;
+    display: grid;
+    place-items: center;
+}
+
+.calendar-empty {
+    border-color: transparent;
+    background: transparent;
+}
+
+.calendar-day {
+    background: #ffffff;
+    color: #0f172a;
+    font-weight: 600;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+.calendar-day:hover {
+    transform: translateY(-1px);
+    border-color: rgba(14, 116, 144, 0.5);
+    box-shadow: 0 10px 20px rgba(15, 23, 42, 0.12);
+}
+
+.calendar-today {
+    border-color: rgba(249, 115, 22, 0.65);
+    background: rgba(249, 115, 22, 0.08);
+}
+
+.calendar-selected {
+    background: linear-gradient(135deg, #0e7490, #14b8a6);
+    border-color: transparent;
+    color: #fff;
+}
+
 @media (max-width: 767px) {
     .navbar-nav .nav-link {
         padding-left: 0;
         padding-right: 0;
+    }
+
+    .clock-time {
+        font-size: 2.55rem;
     }
 }
