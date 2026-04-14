@@ -83,9 +83,57 @@ App URL: http://127.0.0.1:5000
 ## Run with Docker
 
 ```bash
-docker build -t taskflow .
+docker build -f dockerfile -t taskflow .
 docker run --rm -p 5000:5000 taskflow
 ```
+
+## CI/CD
+
+This repository now includes simple GitHub Actions workflows:
+
+- CI workflow: [.github/workflows/ci.yml](.github/workflows/ci.yml)
+- CD workflow: [.github/workflows/cd.yml](.github/workflows/cd.yml)
+
+### CI
+
+The CI pipeline runs on every push to `main` and `develop`, and on each pull request. It does the minimum expected for a small project:
+
+- installs Python dependencies
+- validates Python syntax
+- starts the Flask app and checks `/health`
+- builds the Docker image
+
+### CD
+
+The CD pipeline runs on push to `main`. It does the minimum deploy flow:
+
+- logs in to GitHub Container Registry (`ghcr.io`)
+- builds the Docker image from [dockerfile](dockerfile)
+- pushes the image
+- connects to your server over SSH
+- pulls the newest image and restarts the container
+
+Published image format:
+
+```text
+ghcr.io/<owner>/<repo>/taskflow:latest
+ghcr.io/<owner>/<repo>/taskflow:sha-<commit>
+```
+
+### Required GitHub secrets
+
+- `DEPLOY_HOST` - server IP or domain
+- `DEPLOY_USER` - SSH user on the server
+- `DEPLOY_SSH_KEY` - private SSH key used by GitHub Actions
+- `GHCR_USERNAME` - GitHub username used for container registry login
+- `GHCR_TOKEN` - GitHub token or PAT with permission to pull packages from GHCR
+
+### What this gives you
+
+- `CI` = build + basic test
+- `CD` = Docker image publish + deploy on server
+
+This is enough to say that the project has a real basic CI/CD pipeline.
 
 ## Authentication
 

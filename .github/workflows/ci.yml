@@ -1,0 +1,53 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install -r app/requirements.txt
+
+      - name: Validate Python syntax
+        run: python -m compileall app
+
+      - name: Start application
+        run: |
+          python app/app.py > flask.log 2>&1 &
+          echo $! > flask.pid
+
+      - name: Wait for health endpoint
+        run: |
+          for i in {1..15}; do
+            if curl -fsS http://127.0.0.1:5000/health > /dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          cat flask.log
+          exit 1
+
+      - name: Stop application
+        if: always()
+        run: |
+          if [ -f flask.pid ]; then
+            kill "$(cat flask.pid)" || true
+          fi
+
+      - name: Build Docker image
+        run: docker build -f dockerfile -t taskflow:ci .
